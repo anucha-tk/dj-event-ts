@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import Header from "./Header";
 import Footer from "./Footer";
 
-import styles from "@/styles/404.module.css";
+import styles from "@/styles/Layout.module.css";
 import Showcase from "@/components/Showcase";
 
 interface LayoutProps {
