@@ -6,6 +6,8 @@ import Link from "next/link";
 import { FaPencilAlt, FaTimes } from "react-icons/fa";
 import Image from "next/image";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 import { EventData } from "./event.types";
 
@@ -14,8 +16,28 @@ import { API_URL } from "@/config/index";
 import styles from "@/styles/Event.module.css";
 
 const Slug = ({ evt }: { evt: EventData }) => {
-  const deleteEvent = () => {
-    console.log(55);
+  const router = useRouter();
+
+  const deleteEvent = async (id: string) => {
+    if (confirm("Are you sure?")) {
+      try {
+        await axios.delete(`${API_URL}/api/events/${id}`);
+        // noinspection ES6MissingAwait
+        router.push("/events");
+      } catch (e) {
+        if (axios.isAxiosError(e)) {
+          let error = "Something went wrong!";
+          if (e.response) {
+            error = e.response.data.error.details.errors.map(
+              (e: { path: string; message: string; name: string }) => `${e.path}: ${e.message}`,
+            );
+          }
+
+          toast.error(`${error}`);
+        }
+      }
+    }
+    // toast.error(555);
   };
 
   return (
@@ -27,7 +49,7 @@ const Slug = ({ evt }: { evt: EventData }) => {
               <FaPencilAlt /> Edit Event
             </a>
           </Link>
-          <a href="#" className={styles.delete} onClick={deleteEvent}>
+          <a href="#" className={styles.delete} onClick={() => deleteEvent(evt.id)}>
             <FaTimes /> Delete Event
           </a>
         </div>

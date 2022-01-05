@@ -5,8 +5,18 @@ interface Image {
   size: number;
   url: string;
 }
-export interface AddEventData {
+export interface EventDataResponse {
   data: EventData;
+  meta: {
+    pagination: {
+      start: number;
+      limit: number;
+      total: number;
+      page: number;
+      pageSize: number;
+      pageCount: number;
+    };
+  };
 }
 
 export type EventData = {

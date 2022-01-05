@@ -1,29 +1,67 @@
 // noinspection JSUnusedGlobalSymbols
 
 import React, { useState } from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import axios from "axios";
+import moment from "moment";
+import { FaImage } from "react-icons/fa";
+import Image from "next/image";
 
-import { EventDataResponse } from "./event.types";
+import { EventDataResponse, EventData } from "../event.types";
 
-import styles from "@/styles/Form.module.css";
 import Layout from "@/components/Layout";
+import styles from "@/styles/Form.module.css";
 import { API_URL } from "@/config/index";
+import Modal from "@/components/Modal";
+import ImageUpload from "@/components/ImageUpload";
 
-const Add = () => {
+const EditEventPage = ({ evt }: { evt: EventData }) => {
+  // todo: edit image mode, when update image if exist not working
   const [values, setValues] = useState({
-    name: "",
-    performers: "",
-    venue: "",
-    address: "",
-    date: "",
-    time: "",
-    description: "",
+    name: evt.attributes.name,
+    performers: evt.attributes.performers,
+    venue: evt.attributes.venue,
+    address: evt.attributes.address,
+    date: evt.attributes.date,
+    time: evt.attributes.time,
+    description: evt.attributes.description,
   });
 
+  const [imagePreview, setImagePreview] = useState(
+    evt.attributes.image.data ? evt.attributes.image.data.attributes.formats.medium.url : null,
+  );
+
+  const [showModal, setShowModal] = useState(false);
+
   const router = useRouter();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
+  };
+
+  const imageUploaded = async () => {
+    try {
+      const { data } = await axios.get<EventDataResponse>(`${API_URL}/api/events/${evt.id}`, {
+        params: { populate: "*" },
+      });
+      setImagePreview(data.data.attributes.image.data.attributes.formats.medium.url);
+      setShowModal(false);
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        let error = "Something went wrong!";
+        if (e.response) {
+          error = e.response.data.error.details.errors.map(
+            (e: { path: string; message: string; name: string }) => `${e.path}: ${e.message}`,
+          );
+        }
+
+        toast.error(`${error}`);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +71,7 @@ const Add = () => {
       toast.error("Please fill in all fields");
     } else {
       try {
-        const { data } = await axios.post<EventDataResponse>(`${API_URL}/api/events`, {
+        const { data } = await axios.put<EventDataResponse>(`${API_URL}/api/events/${evt.id}`, {
           data: values,
         });
         toast.success("Create Event Successful");
@@ -54,15 +92,10 @@ const Add = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
-  };
-
   return (
-    <Layout title={"Add New Event"}>
+    <Layout title={"Edit  Event"}>
       <Link href={"/events"}>Go Back</Link>
-      <h1>Add Event</h1>
+      <h1>Update Event</h1>
 
       <form onSubmit={(e) => handleSubmit(e)} className={styles.form}>
         <div className={styles.grid}>
@@ -112,7 +145,7 @@ const Add = () => {
               type="date"
               id={"date"}
               name={"date"}
-              value={values.date}
+              value={moment(values.date).format("yyyy-MM-DD")}
               onChange={handleInputChange}
             />
           </div>
@@ -138,10 +171,42 @@ const Add = () => {
             onChange={handleInputChange}
           />
         </div>
-        <input type="submit" value="Add Event" className={"btn"} />
+        <input type="submit" value="Update Event" className={"btn"} />
       </form>
+
+      <h2>Event Image</h2>
+      {imagePreview ? (
+        <Image src={imagePreview} height={100} width={170} alt={"Image Event"} />
+      ) : (
+        <div>
+          <p>No image uploaded</p>
+        </div>
+      )}
+      <div>
+        <button onClick={() => setShowModal(true)} className="btn-secondary btn-icon">
+          <FaImage /> Set Image
+        </button>
+      </div>
+
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <ImageUpload
+          evtId={evt.id}
+          imageUploaded={imageUploaded}
+          // token={token}
+        />
+      </Modal>
     </Layout>
   );
 };
 
-export default Add;
+export default EditEventPage;
+
+export async function getServerSideProps({ params: { id } }: { params: { id: string } }) {
+  const { data } = await axios.get(`${API_URL}/api/events/${id}`, {
+    params: { populate: "*" },
+  });
+
+  return {
+    props: { evt: data.data },
+  };
+}
