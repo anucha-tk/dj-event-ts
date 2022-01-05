@@ -34,7 +34,7 @@ const Home = ({ events }: { events: EventData[] }) => {
 export default Home;
 
 export async function getStaticProps() {
-  const { data } = await axios.get(`${API_URL}/api/event?pagination[limit]=3`, {
+  const { data } = await axios.get(`${API_URL}/api/events?pagination[limit]=3`, {
     params: { populate: "*", sort: ["date:desc"] },
   });
 

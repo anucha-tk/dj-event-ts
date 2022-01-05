@@ -5,6 +5,10 @@ interface Image {
   size: number;
   url: string;
 }
+export interface AddEventData {
+  data: EventData;
+}
+
 export type EventData = {
   id: string;
   attributes: {

@@ -36,7 +36,7 @@ const Slug = ({ evt }: { evt: EventData }) => {
           {evt.attributes.date} at {evt.attributes.time}
         </span>
         <h1>{evt.attributes.name}</h1>
-        {evt.attributes.image && (
+        {evt.attributes.image.data && (
           <div className={styles.image}>
             <Image
               src={evt.attributes.image.data.attributes.formats.medium.url}
@@ -65,7 +65,7 @@ export default Slug;
 
 // query all event and create path
 export async function getStaticPaths() {
-  const { data: res } = await axios.get(`${API_URL}/api/event`);
+  const { data: res } = await axios.get(`${API_URL}/api/events`);
   const paths = res.data.map((evt: EventData) => {
     return {
       params: { slug: evt.attributes.slug },
@@ -91,7 +91,7 @@ export async function getStaticProps({ params: { slug } }: { params: { slug: str
       encodeValuesOnly: true,
     },
   );
-  const { data: res } = await axios.get(`${API_URL}/api/event?${query}`, {
+  const { data: res } = await axios.get(`${API_URL}/api/events?${query}`, {
     params: { populate: "*" },
   });
 

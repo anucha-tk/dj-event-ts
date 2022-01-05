@@ -12,7 +12,7 @@ const EventItem = ({ evt }: { evt: EventData }) => {
       <div className={styles.img}>
         <Image
           src={
-            evt.attributes.image
+            evt.attributes.image.data
               ? evt.attributes.image.data.attributes.formats.thumbnail.url
               : "/images/event-default.png"
           }
