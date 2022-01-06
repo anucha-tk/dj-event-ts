@@ -16,7 +16,7 @@ const Search = ({ events }: { events: EventData[] }) => {
   const router = useRouter();
 
   return (
-    <Layout title={"Search Result"}>
+    <Layout title={"Search Result"} isPrivateRoute={false}>
       <Link href={"/events"}>Go Back</Link>
       <h1>Search Result for {router.query.term}</h1>
 

@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import React from "react";
+import React, { useContext } from "react";
 import qs from "qs";
 import Link from "next/link";
 import { FaPencilAlt, FaTimes } from "react-icons/fa";
@@ -14,9 +14,11 @@ import { EventData } from "./event.types";
 import Layout from "@/components/Layout";
 import { API_URL } from "@/config/index";
 import styles from "@/styles/Event.module.css";
+import AuthContext from "@/context/AuthContext";
 
 const Slug = ({ evt }: { evt: EventData }) => {
   const router = useRouter();
+  const { user } = useContext(AuthContext);
 
   const deleteEvent = async (id: string) => {
     if (confirm("Are you sure?")) {
@@ -37,22 +39,23 @@ const Slug = ({ evt }: { evt: EventData }) => {
         }
       }
     }
-    // toast.error(555);
   };
 
   return (
     <Layout>
       <div className={styles.event}>
-        <div className={styles.controls}>
-          <Link href={`/events/edit/${evt.id}`}>
-            <a>
-              <FaPencilAlt /> Edit Event
+        {user && (
+          <div className={styles.controls}>
+            <Link href={`/events/edit/${evt.id}`}>
+              <a>
+                <FaPencilAlt /> Edit Event
+              </a>
+            </Link>
+            <a href="#" className={styles.delete} onClick={() => deleteEvent(evt.id)}>
+              <FaTimes /> Delete Event
             </a>
-          </Link>
-          <a href="#" className={styles.delete} onClick={() => deleteEvent(evt.id)}>
-            <FaTimes /> Delete Event
-          </a>
-        </div>
+          </div>
+        )}
 
         <span>
           {evt.attributes.date} at {evt.attributes.time}

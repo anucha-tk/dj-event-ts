@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -7,8 +7,10 @@ import Footer from "./Footer";
 
 import styles from "@/styles/Layout.module.css";
 import Showcase from "@/components/Showcase";
+import AuthContext from "@/context/AuthContext";
 
 interface LayoutProps {
+  isPrivateRoute?: boolean;
   title?: string;
   keywords?: string;
   description?: string;
@@ -16,12 +18,22 @@ interface LayoutProps {
 }
 
 const Layout = ({
+  isPrivateRoute = true,
   title = "Dj Events | Find the hottest parties",
   description = "Find the latest DJ and other musical events",
   keywords = "music, dj, edm, events",
   children,
 }: LayoutProps) => {
   const router = useRouter();
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (isPrivateRoute && !user) {
+      // noinspection JSIgnoredPromiseFromCall
+      router.push("/");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <>

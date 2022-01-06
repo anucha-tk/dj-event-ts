@@ -11,7 +11,7 @@ import EventItem from "@/components/EventItem";
 
 const Home = ({ events }: { events: EventData[] }) => {
   return (
-    <Layout>
+    <Layout isPrivateRoute={false}>
       <ul>
         <h1>Up coming Events</h1>
 

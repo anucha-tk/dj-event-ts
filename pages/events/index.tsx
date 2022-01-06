@@ -21,7 +21,7 @@ const Index = ({
   pageCount: number;
 }) => {
   return (
-    <Layout>
+    <Layout isPrivateRoute={false}>
       <h1>Events</h1>
       {events.length === 0 && <h3>No events to show</h3>}
 

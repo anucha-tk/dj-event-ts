@@ -5,6 +5,12 @@ interface Image {
   size: number;
   url: string;
 }
+
+export interface StrapiLoginResponse {
+  jwt: string;
+  user: object;
+}
+
 export interface EventDataResponse {
   data: EventData;
   meta: {
